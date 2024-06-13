@@ -15,7 +15,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const corsOptions = {
-  origin: ['http://localhost:3001', 'http://localhost:3001/', 'http://localhost:3000', 'http://localhost:3000/', 'http://localhost:5173/', 'http://localhost:5173', 'https://my-ecommerce-backend-rb50.onrender.com'],
+  origin: ['http://localhost:3001', 'http://localhost:3001/', 'http://localhost:3000', 
+    'http://localhost:3000/', 'http://localhost:5173/', 'http://localhost:5173', 'https://my-ecommerce-backend-rb50.onrender.com', 
+    'https://my-ecommerce-frontend-chi.vercel.app', 'https://my-ecommerce-frontend-chi.vercel.app/'],
   optionsSuccessStatus: 200,
   credentials: true
 }
