@@ -6,7 +6,10 @@ const pool = new Pool({
     host: process.env.HOST,
     database: process.env.DATABASE,
     password: process.env.PASSWORD,
-    port: process.env.PORT_POOL
+    port: process.env.PORT_POOL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
 
 const bcrypt = require('bcrypt');
