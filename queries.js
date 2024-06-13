@@ -1,10 +1,12 @@
+require('dotenv').config()
+
 const Pool = require('pg').Pool;
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'ecommerce_project',
-    password: 'postgres',
-    port: 5432
+    user: process.env.USER,
+    host: process.env.HOST,
+    database: process.env.DATABASE,
+    password: process.env.PASSWORD,
+    port: process.env.PORT_POOL
 })
 
 const bcrypt = require('bcrypt');
