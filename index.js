@@ -41,6 +41,9 @@ const corsOptions = {
   credentials: true
 }
 
+const jwtAuthMiddleware = passport.authenticate('jwt-customer', { session: false });
+
+
 app.use(helmet())
 app.use(compression())
 app.use(bodyParser.json());
@@ -139,7 +142,7 @@ app.get('/orders', ensureAuthenticated, db.cartInactive)
 app.get('/shipUser', ensureAuthenticated, db.getShipments)
 
 
-app.get('/dashboard', ensureAuthenticated, db.dashboard)
+app.get('/dashboard', jwtAuthMiddleware, ensureAuthenticated, db.dashboard)
 app.get('/login', db.login)
 
 
@@ -210,17 +213,16 @@ passport.use(new LocalStrategy(
         jwtFromRequest: ExtractJWT.fromExtractors([
           (req) => {
             let token = null;
-            if (req && req.cookies)
-            {
-                token = req.cookies['A_JWT']
+            if (req && req.cookies) {
+              token = req.cookies['A_JWT'];
             }
-            console.log(token)
             return token;
-        }])
+          }
+        ])
       },
       async (token, done) => {
         try {
-          console.log(token.user)
+          console.log(token.user);
           return done(null, token.user);
         } catch (error) {
           done(error);
@@ -230,7 +232,7 @@ passport.use(new LocalStrategy(
   );
 
 
-  app.post('/login', (req, res, next) => {
+  app.post('/login', jwtAuthMiddleware, (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
       if (err) {
         return res.status(500).json({ message: 'Internal Server Error' });
