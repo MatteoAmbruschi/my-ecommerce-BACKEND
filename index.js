@@ -31,13 +31,12 @@ app.use(flash());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   store,
   cookie: {
     httpOnly: true,
-    sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000,
-    secure: true 
+    sameSite: false,
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
