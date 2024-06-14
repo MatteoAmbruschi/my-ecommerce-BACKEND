@@ -53,7 +53,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
 app.use(cookieParser());
-app.use(logger('dev'));
+/* app.use(logger('dev')); */
 app.use(flash());
 
 // Session Configuration
@@ -61,10 +61,16 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: new MemoryStore({checkPeriod: 86400000}),
+  store: new MemoryStore({
+    checkPeriod: 86400000, // Check expired sessions every 24 hours
+    ttl: 24 * 60 * 60 * 1000, // Session TTL: 24 hours
+    dispose: (key, value) => {
+      console.log(`Session ${key} is being disposed.`);
+    },
+  }),
   cookie: {
     httpOnly: true,
-    sameSite: false,
+    sameSite: 'lax',
 /*     secure: process.env.NODE_ENV === 'production', */
     maxAge: 24 * 60 * 60 * 1000
   }
