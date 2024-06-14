@@ -54,7 +54,7 @@ app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
 app.use(cookieParser());
 /* app.use(logger('dev')); */
-app.use(flash());
+
 
 // Session Configuration
 app.use(session({
@@ -77,6 +77,11 @@ app.use(session({
 }));
 
 
+
+// Initialize Passport and restore authentication state, if any, from the session.
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Serialize User
 passport.serializeUser((user, done) => {
   console.log('=>serializeUser ' + user.id);
@@ -91,9 +96,8 @@ passport.deserializeUser((id, done) => {
   });
 });
 
-// Initialize Passport and restore authentication state, if any, from the session.
-app.use(passport.initialize());
-app.use(passport.session());
+
+app.use(flash());
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
