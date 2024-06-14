@@ -48,6 +48,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(origin))
+app.set('trust proxy', 1);
 
 app.use(flash());
 
@@ -59,7 +60,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: false,
-    secure: process.env.NODE_ENV === 'production', /* il problema a true */
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
@@ -74,7 +75,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  console.log('=>deserializeUser');
+  console.log('=>deserializeUser ' + id);
   db.findById(id, (err, user) => {
     done(err, user);
   });
