@@ -69,9 +69,6 @@ app.use(session({
   }
 }));
 
-// Initialize Passport and restore authentication state, if any, from the session.
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Serialize User
 passport.serializeUser((user, done) => {
@@ -86,6 +83,10 @@ passport.deserializeUser((id, done) => {
     done(err, user);
   });
 });
+
+// Initialize Passport and restore authentication state, if any, from the session.
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
