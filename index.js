@@ -10,6 +10,7 @@ const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const store = new session.MemoryStore();
 const flash = require('connect-flash');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -189,7 +190,8 @@ passport.use(new LocalStrategy(
         if (err) {
           return res.status(500).json({ message: 'Login failed' });
         }
-        return res.status(200).json({ message: 'Login effettuato con successo' });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        return res.status(200).json({ message: 'Login effettuato con successo', token });
       });
     })(req, res, next);
   });
