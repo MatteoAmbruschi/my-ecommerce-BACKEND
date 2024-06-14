@@ -33,7 +33,9 @@ const corsOptions = {
     'https://my-ecommerce-qq7y.onrender.com',
     'https://my-ecommerce-qq7y.onrender.com/',
     'https://my-ecommerce-backend.vercel.app',
-    'https://my-ecommerce-backend.vercel.app/'
+    'https://my-ecommerce-backend.vercel.app/',
+    'https://my-ecommerce-backend.vercel.app/login',
+    'https://my-ecommerce-frontend-chi.vercel.app'
   ],
   optionsSuccessStatus: 200,
   credentials: true
