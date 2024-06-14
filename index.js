@@ -10,8 +10,13 @@ const db = require('./queries');
 const session = require("express-session");
 const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
+const flash = require('connect-flash');
+const helmet = require('helmet');
+const compression = require('compression');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const MemoryStore = require('memorystore')(session)
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -41,31 +46,138 @@ const corsOptions = {
   credentials: true
 }
 
+app.use(helmet());
+app.use(compression());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+app.set('trust proxy', 1);
+app.use(cookieParser());
+/* app.use(logger('dev')); */
+
 
 // Session Configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: new MemoryStore({
+    checkPeriod: 86400000, // Check expired sessions every 24 hours
+    ttl: 24 * 60 * 60 * 1000, // Session TTL: 24 hours
+    dispose: (key, value) => {
+      console.log(`Session ${key} is being disposed.`);
+    },
+  }),
   cookie: {
     httpOnly: true,
     sameSite: false,
-    secure: false, // Disattivare solo in ambiente di sviluppo!
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-// Body Parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// Cookie Parser
-app.use(cookieParser());
 
-// Initialize Passport
+// Initialize Passport and restore authentication state, if any, from the session.
 app.use(passport.initialize());
+app.use(passport.session());
+
+// Serialize User
+passport.serializeUser((user, done) => {
+  console.log('=>serializeUser ' + user.id);
+  done(null, user.id);
+});
+
+// Deserialize User
+passport.deserializeUser((id, done) => {
+  console.log('=>deserializeUser ' + id);
+  db.findById(id, (err, user) => {
+    done(err, user);
+  });
+});
+
+
+app.use(flash());
+
+// Authentication Middleware
+function ensureAuthenticated(req, res, next) {
+  console.log('Verifying authentication...');
+  if (req.isAuthenticated()) {
+    console.log('User is authenticated');
+    return next();
+  }
+  console.log('User is not authenticated');
+  res.status(401).json({ message: 'Non sei autenticato' });
+}
+
+// Routes
+app.get('/', (req, res) => {
+  res.status(200).send('Naviga nel mio e-commerce!')
+});
+
+// Example routes
+app.get('/products/:id', db.getProductsDetailById);
+app.get('/allProducts', db.getAllProducts);
+app.get('/products', db.getCategory);
+app.post('/products', db.createProduct);
+app.delete('/products/:id', db.deleteProducts);
+app.put('/products/:id', db.updateProduct);
+
+app.get('/orders/:id', db.getOrdersById);
+app.put('/orders/:id', db.updateOrdersById);
+app.delete('/orders/:id', db.deleteOrder);
+app.get('/orders/:id/detail', db.getOrdersProdottiById);
+
+app.post('/cart/:cartId/checkout', db.checkout);
+
+app.get('/allUsers', db.getAllUsers);
+app.get('/users/:id', db.getUsersByID);
+app.get('/users', db.getUsers);
+app.put('/users', ensureAuthenticated, db.updateUser);
+app.delete('/users', db.deleteUser);
+
+app.put('/details/:id', db.updateDetail);
+
+app.get('/allCart', db.getCartUser);
+app.put('/cart/:id', db.updateCart);
+
+app.delete('/cart/:id', ensureAuthenticated, db.deleteCart);
+app.get('/cart', ensureAuthenticated, db.cartActive);
+app.post('/cart', ensureAuthenticated, db.createCart);
+app.put('/cart/:id', ensureAuthenticated, db.addCart);
+app.get('/orders', ensureAuthenticated, db.cartInactive);
+app.get('/shipUser', ensureAuthenticated, db.getShipments);
+
+app.get('/dashboard', ensureAuthenticated, db.dashboard);
+app.get('/login', db.login);
+
+// Registration Route
+app.post('/register', async (req, res) => {
+  try {
+      const { nome, cognome, email, password } = req.body;
+
+      if (!nome || !cognome || !email || !password) {
+          return res.status(400).json({ error: 'All fields are required' });
+      }
+      if(password.length < 6 || password.length > 12){
+        return res.status(406).json({ error: 'The password must be between 6 and 12 characters' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = await db.createUser(nome, cognome, email, hashedPassword);
+
+      res.status(200).json({ message: 'User registered successfully!', user: newUser });
+  } catch (error) {
+      console.error('Error during registration:', error);
+      if(error.constraint){
+        res.status(401).json({ error: 'The email already exists' });
+      } else if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal Error' });
+      }
+  }
+});
 
 // Passport Local Strategy
 passport.use(new LocalStrategy(
@@ -95,25 +207,6 @@ passport.use(new LocalStrategy(
   }
 ));
 
-// Serialize User
-passport.serializeUser((user, done) => {
-  console.log('=>serializeUser ' + user.id);
-  done(null, user.id);
-});
-
-// Deserialize User
-passport.deserializeUser((id, done) => {
-  console.log('=>deserializeUser ' + id);
-  db.findById(id, (err, user) => {
-    done(err, user);
-  });
-});
-
-// Routes
-app.get('/', (req, res) => {
-  res.status(200).send('Naviga nel mio e-commerce!')
-});
-
 // Login Route
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -123,21 +216,28 @@ app.post('/login', (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: info.message });
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    return res.status(200).json({ message: 'Login effettuato con successo', token });
+    req.logIn(user, (err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Login failed' });
+      }
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      return res.status(200).json({ message: 'Login effettuato con successo', token });
+    });
   })(req, res, next);
 });
 
 // Logout Route
-app.post('/logout', (req, res) => {
-  req.logout();
-  res.status(200).json({ message: 'Logout effettuato con successo' });
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error' });
+app.post('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    req.session.destroy(function(err) {
+      if (err) {
+        return next(err);
+      }
+      res.clearCookie('connect.sid');
+      res.status(200).json({ message: 'Logout done' });
+    });
+  });
 });
 
 // Start server
