@@ -172,7 +172,7 @@ passport.use(new LocalStrategy(
           if (!result) {
             return done(null, false, { message: 'Incorrect password' });
           }
-          console.log('USER:' + user)
+          console.log('USER:' + user.email)
           return done(null, user);
         });
       });
