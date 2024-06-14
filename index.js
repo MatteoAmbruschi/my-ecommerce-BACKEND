@@ -204,7 +204,7 @@ passport.use(new LocalStrategy(
     'jwt-customer',
     new JWTstrategy(
       {
-        secretOrKey: process.env.JWT_KEY,
+        secretOrKey: process.env.JWT_SECRET,
         jwtFromRequest: ExtractJWT.fromExtractors([
           (req) => {
             let token = null;
