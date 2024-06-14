@@ -36,7 +36,8 @@ const origin = [
   'https://my-ecommerce-qq7y.onrender.com',
   'https://my-ecommerce-qq7y.onrender.com/',
   'https://my-ecommerce-backend.vercel.app',
-  'https://my-ecommerce-backend.vercel.app/'
+  'https://my-ecommerce-backend.vercel.app/',
+  'https://my-ecommerce-backend.vercel.app/dashboard'
 ]
 
 const corsOptions = {
@@ -70,7 +71,7 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: false,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000
   }
