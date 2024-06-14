@@ -10,6 +10,10 @@ const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const store = new session.MemoryStore();
 const flash = require('connect-flash');
+const helmet = require('helmet')
+const compression = require('compression')
+const JWTstrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,9 +39,13 @@ const corsOptions = {
   credentials: true
 }
 
+app.use(helmet())
+app.use(compression())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
+app.options('*', cors(origin))
+
 app.use(flash());
 
 app.use(session({
@@ -48,7 +56,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: false,
-    secure: true,
+   /*  secure: true, */
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
@@ -190,6 +198,34 @@ passport.use(new LocalStrategy(
       });
     }
   ));
+
+
+  passport.use(
+    'jwt-customer',
+    new JWTstrategy(
+      {
+        secretOrKey: process.env.JWT_KEY,
+        jwtFromRequest: ExtractJWT.fromExtractors([
+          (req) => {
+            let token = null;
+            if (req && req.cookies)
+            {
+                token = req.cookies['A_JWT']
+            }
+            console.log(token)
+            return token;
+        }])
+      },
+      async (token, done) => {
+        try {
+          console.log(token.user)
+          return done(null, token.user);
+        } catch (error) {
+          done(error);
+        }
+      }
+    )
+  );
 
 
   app.post('/login', (req, res, next) => {
