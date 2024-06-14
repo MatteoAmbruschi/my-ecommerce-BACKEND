@@ -18,25 +18,25 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const app = express();
 const port = process.env.PORT || 3000;
 
+const origin = [
+  'http://localhost:3001',
+  'http://localhost:3001/',
+  'http://localhost:3000',
+  'http://localhost:3000/',
+  'http://localhost:5173/',
+  'http://localhost:5173',
+  'https://my-ecommerce-backend-rb50.onrender.com',
+  'https://my-ecommerce-frontend-chi.vercel.app',
+  'https://my-ecommerce-frontend-chi.vercel.app/',
+  'https://my-ecommerce-backend-rb50.onrender.com/cart',
+  'https://my-ecommerce-qq7y.onrender.com',
+  'https://my-ecommerce-qq7y.onrender.com/',
+  'https://my-ecommerce-backend.vercel.app',
+  'https://my-ecommerce-backend.vercel.app/'
+]
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3001',
-    'http://localhost:3001/',
-    'http://localhost:3000',
-    'http://localhost:3000/',
-    'http://localhost:5173/',
-    'http://localhost:5173',
-    'https://my-ecommerce-backend-rb50.onrender.com',
-    'https://my-ecommerce-frontend-chi.vercel.app',
-    'https://my-ecommerce-frontend-chi.vercel.app/',
-    'https://my-ecommerce-backend-rb50.onrender.com/cart',
-    'https://my-ecommerce-qq7y.onrender.com',
-    'https://my-ecommerce-qq7y.onrender.com/',
-    'https://my-ecommerce-backend.vercel.app',
-    'https://my-ecommerce-backend.vercel.app/',
-    'https://my-ecommerce-backend.vercel.app/login',
-    'https://my-ecommerce-frontend-chi.vercel.app'
-  ],
+  origin,
   optionsSuccessStatus: 200,
   credentials: true
 }
