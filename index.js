@@ -12,8 +12,7 @@ const store = new session.MemoryStore();
 const flash = require('connect-flash');
 const helmet = require('helmet')
 const compression = require('compression')
-const JWTstrategy = require('passport-jwt').Strategy;
-const ExtractJWT = require('passport-jwt').ExtractJwt;
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -139,8 +138,8 @@ app.get('/orders', ensureAuthenticated, db.cartInactive)
 app.get('/shipUser', ensureAuthenticated, db.getShipments)
 
 
-app.get('/dashboard', passport.authenticate('jwt-customer', { session: false }), ensureAuthenticated, db.dashboard)
-app.get('/login', passport.authenticate('jwt-customer', { session: false }), db.login)
+app.get('/dashboard', ensureAuthenticated, db.dashboard)
+app.get('/login', db.login)
 
 
 
@@ -202,34 +201,6 @@ passport.use(new LocalStrategy(
   ));
 
 
-passport.use(
-  'jwt-customer',
-  new JWTstrategy(
-    {
-      secretOrKey: process.env.JWT_SECRET,
-      jwtFromRequest: ExtractJWT.fromExtractors([
-        (req) => {
-          let token = null;
-          if (req && req.cookies) {
-            token = req.cookies['A_JWT'];
-          }
-          return token;
-        }
-      ])
-    },
-    async (token, done) => {
-      try {
-        // Verifica se il token contiene un utente valido
-        console.log(token.user);
-        return done(null, token.user);
-      } catch (error) {
-        done(error);
-      }
-    }
-  )
-);
-
-
   app.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
       if (err) {
@@ -242,7 +213,8 @@ passport.use(
         if (err) {
           return res.status(500).json({ message: 'Login failed' });
         }
-        return res.status(200).json({ message: 'Login effettuato con successo ' + user.email });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        return res.status(200).json({ message: 'Login effettuato con successo', token });
       });
     })(req, res, next);
   });
