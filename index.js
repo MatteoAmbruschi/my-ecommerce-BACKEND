@@ -16,6 +16,7 @@ const compression = require('compression');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const MemoryStore = require('memorystore')(session)
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -60,11 +61,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: new session.MemoryStore(),
+  store: new MemoryStore({checkPeriod: 86400000}),
   cookie: {
     httpOnly: true,
     sameSite: false,
-    secure: process.env.NODE_ENV === 'production',
+/*     secure: process.env.NODE_ENV === 'production', */
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
