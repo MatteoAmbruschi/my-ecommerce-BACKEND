@@ -37,7 +37,7 @@ const origin = [
   'https://my-ecommerce-qq7y.onrender.com/',
   'https://my-ecommerce-backend.vercel.app',
   'https://my-ecommerce-backend.vercel.app/',
-  'https://my-ecommerce-backend.vercel.app/dashboard'
+  'https://my-ecommerce-backend-f0kqy66v8-matteos-projects-aeb1c80b.vercel.app/'
 ]
 
 const corsOptions = {
