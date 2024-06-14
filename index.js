@@ -73,19 +73,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-passport.serializeUser((user, done) => {
-  console.log('=>serializeUser ' + user.id);
-  done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-  console.log('=>deserializeUser ' + id);
-  db.findById(id, (err, user) => {
-    done(err, user);
-  });
-});
-
-
 app.use((req, res, next) => {
   console.log('Session:', req.session);
   console.log('User:', req.user);
@@ -183,7 +170,8 @@ app.post('/register', async (req, res) => {
 passport.use(new LocalStrategy(
     {
       usernameField: 'email', 
-      passwordField: 'password' 
+      passwordField: 'password',
+      session: false
     },
     function (email, password, done) {
       db.findByEmail(email, function (err, user) {
@@ -206,6 +194,19 @@ passport.use(new LocalStrategy(
       });
     }
   ));
+  
+
+  passport.serializeUser((user, done) => {
+    console.log('=>serializeUser ' + user.id);
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser((id, done) => {
+    console.log('=>deserializeUser ' + id);
+    db.findById(id, (err, user) => {
+      done(err, user);
+    });
+  });
 
 
   app.post('/login', (req, res, next) => {
