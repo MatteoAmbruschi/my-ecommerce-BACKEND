@@ -1,4 +1,6 @@
-require('dotenv').config()
+if(process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -57,7 +59,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: false,
-   /*  secure: true, */
+    secure: process.env.NODE_ENV === 'production', /* il problema a true */
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
