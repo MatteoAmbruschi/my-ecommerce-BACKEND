@@ -24,7 +24,7 @@ const corsOptions = {
 }
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(flash());
 
@@ -172,6 +172,7 @@ passport.use(new LocalStrategy(
           if (!result) {
             return done(null, false, { message: 'Incorrect password' });
           }
+          console.log('USER:' + user)
           return done(null, user);
         });
       });
