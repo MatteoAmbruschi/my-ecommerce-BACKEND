@@ -24,20 +24,20 @@ const corsOptions = {
 }
 
 app.use(bodyParser.json());
-/* app.use(bodyParser.urlencoded({ extended: true })); */
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
-app.options('*', cors());
 app.use(flash());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   store,
   cookie: {
     httpOnly: true,
-    sameSite: false,
-    maxAge: 24 * 60 * 60 * 1000
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: true 
   }
 }));
 
