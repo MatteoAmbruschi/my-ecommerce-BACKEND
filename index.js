@@ -36,7 +36,6 @@ redisClient.connect().catch(console.error)
 
 let redisStore = new RedisStore({
   client: redisClient,
-  prefix: "myapp:",
 })
 
 app.use(session({
