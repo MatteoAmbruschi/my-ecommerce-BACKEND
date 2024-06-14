@@ -15,6 +15,8 @@ const flash = require('connect-flash');
 const helmet = require('helmet')
 const compression = require('compression')
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -49,6 +51,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(origin))
 app.set('trust proxy', 1);
+app.use(cookieParser());
+app.use(logger('dev'));
 
 app.use(flash());
 
