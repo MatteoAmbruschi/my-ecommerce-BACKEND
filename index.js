@@ -17,10 +17,22 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const corsOptions = {
-  origin: ['http://localhost:3001', 'http://localhost:3001/', 'http://localhost:3000', 
-    'http://localhost:3000/', 'http://localhost:5173/', 'http://localhost:5173', 'https://my-ecommerce-backend-rb50.onrender.com', 
-    'https://my-ecommerce-frontend-chi.vercel.app', 'https://my-ecommerce-frontend-chi.vercel.app/', 'https://my-ecommerce-backend-rb50.onrender.com/cart', 
-    'https://my-ecommerce-qq7y.onrender.com', 'https://my-ecommerce-qq7y.onrender.com/' ,'https://my-ecommerce-backend.vercel.app', 'https://my-ecommerce-backend.vercel.app/'],
+  origin: [
+    'http://localhost:3001',
+    'http://localhost:3001/',
+    'http://localhost:3000',
+    'http://localhost:3000/',
+    'http://localhost:5173/',
+    'http://localhost:5173',
+    'https://my-ecommerce-backend-rb50.onrender.com',
+    'https://my-ecommerce-frontend-chi.vercel.app',
+    'https://my-ecommerce-frontend-chi.vercel.app/',
+    'https://my-ecommerce-backend-rb50.onrender.com/cart',
+    'https://my-ecommerce-qq7y.onrender.com',
+    'https://my-ecommerce-qq7y.onrender.com/',
+    'https://my-ecommerce-backend.vercel.app',
+    'https://my-ecommerce-backend.vercel.app/'
+  ],
   optionsSuccessStatus: 200,
   credentials: true
 }
@@ -29,6 +41,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(flash());
+
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://my-ecommerce-frontend-chi.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
 
 
 let redisClient = createClient()
