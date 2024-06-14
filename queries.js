@@ -1,4 +1,5 @@
 require('dotenv').config()
+const bcrypt = require('bcrypt');
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
@@ -11,11 +12,6 @@ const pool = new Pool({
         rejectUnauthorized: false
     }
 })
-
-const bcrypt = require('bcrypt');
-if(process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
-  }
   
 
 const getAllProducts = (req, res) => {
