@@ -18,7 +18,7 @@ const corsOptions = {
   origin: ['http://localhost:3001', 'http://localhost:3001/', 'http://localhost:3000', 
     'http://localhost:3000/', 'http://localhost:5173/', 'http://localhost:5173', 'https://my-ecommerce-backend-rb50.onrender.com', 
     'https://my-ecommerce-frontend-chi.vercel.app', 'https://my-ecommerce-frontend-chi.vercel.app/', 'https://my-ecommerce-backend-rb50.onrender.com/cart', 
-    'https://my-ecommerce-qq7y.onrender.com', 'https://my-ecommerce-qq7y.onrender.com/' ,'https://my-ecommerce-backend.vercel.app/', 'https://my-ecommerce-backend.vercel.app/'],
+    'https://my-ecommerce-qq7y.onrender.com', 'https://my-ecommerce-qq7y.onrender.com/' ,'https://my-ecommerce-backend.vercel.app', 'https://my-ecommerce-backend.vercel.app/'],
   optionsSuccessStatus: 200,
   credentials: true
 }
@@ -35,8 +35,8 @@ app.use(session({
   store,
   cookie: {
     httpOnly: true,
-    sameSite: false,
-    maxAge: 24 * 60 * 60 * 1000
+    sameSite: 'none',
+    secure: true
   }
 }));
 
