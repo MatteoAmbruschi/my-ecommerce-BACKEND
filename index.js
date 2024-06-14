@@ -10,7 +10,6 @@ const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const store = new session.MemoryStore();
 const flash = require('connect-flash');
-const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,7 +18,7 @@ const corsOptions = {
   origin: ['http://localhost:3001', 'http://localhost:3001/', 'http://localhost:3000', 
     'http://localhost:3000/', 'http://localhost:5173/', 'http://localhost:5173', 'https://my-ecommerce-backend-rb50.onrender.com', 
     'https://my-ecommerce-frontend-chi.vercel.app', 'https://my-ecommerce-frontend-chi.vercel.app/', 'https://my-ecommerce-backend-rb50.onrender.com/cart', 
-    'https://my-ecommerce-qq7y.onrender.com', 'https://my-ecommerce-qq7y.onrender.com/', 'https://my-ecommerce-backend.vercel.app/', 'https://my-ecommerce-backend.vercel.app'],
+    'https://my-ecommerce-qq7y.onrender.com', 'https://my-ecommerce-qq7y.onrender.com/'],
   optionsSuccessStatus: 200,
   credentials: true
 }
@@ -190,8 +189,7 @@ passport.use(new LocalStrategy(
         if (err) {
           return res.status(500).json({ message: 'Login failed' });
         }
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ message: 'Login effettuato con successo', token });
+        return res.status(200).json({ message: 'Login effettuato con successo' });
       });
     })(req, res, next);
   });
