@@ -8,8 +8,10 @@ const db = require('./queries');
 const session = require("express-session");
 const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
-const store = new session.MemoryStore();
 const flash = require('connect-flash');
+
+const RedisStore = require('connect-redis').default;
+const createClient = require('redis').createClient;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,11 +30,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(flash());
 
+
+let redisClient = createClient()
+redisClient.connect().catch(console.error)
+
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "myapp:",
+})
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store,
+  store: redisStore,
   cookie: {
     httpOnly: true,
     sameSite: false,
