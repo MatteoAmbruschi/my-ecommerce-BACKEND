@@ -189,7 +189,7 @@ passport.use(new LocalStrategy(
         if (err) {
           return res.status(500).json({ message: 'Login failed' });
         }
-        return res.status(200).json({ message: 'Login effettuato con successo' });
+        return res.status(200).json({ message: 'Login effettuato con successo ' + user.email });
       });
     })(req, res, next);
   });
