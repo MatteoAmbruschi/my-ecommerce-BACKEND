@@ -122,19 +122,12 @@ app.use((req, res, next) => {
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
   console.log('Verifying authentication...');
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      console.error('Error in authentication:', err);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    if (!user) {
-      console.log('User not authenticated:', info.message);
-      return res.status(401).json({ message: 'Non sei autenticato' });
-    }
-    req.user = user;
+  if (req.isAuthenticated()) {
     console.log('User is authenticated');
     return next();
-  })(req, res, next); 
+  }
+  console.log('User is not authenticated');
+  res.status(401).json({ message: 'Non sei autenticato' });
 }
 
 
