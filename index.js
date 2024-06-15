@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const db = require('./queries');
 const session = require("express-session");
 const passport = require('passport');
-const LocalStrategy = require("passport-local").Strategy;
+const { Strategy } = require("passport-local");
 const flash = require('connect-flash');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -78,7 +78,6 @@ app.use(session({
 }));
 
 
-
 // Initialize Passport and restore authentication state, if any, from the session.
 app.use(passport.initialize());
 app.use(passport.session());
@@ -99,6 +98,14 @@ passport.deserializeUser((id, done) => {
 
 
 app.use(flash());
+
+// Check in log
+app.use((req, res, next) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  next();
+});
+
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
@@ -180,7 +187,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Passport Local Strategy
-passport.use(new LocalStrategy(
+passport.use(new Strategy(
   {
     usernameField: 'email',
     passwordField: 'password'
