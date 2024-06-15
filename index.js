@@ -20,28 +20,6 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 const app = express();
 const port = process.env.PORT || 3000;
 
-
-//TOKEN JwtStrategy
-const jwtOpts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET
-};
-
-passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
-  console.log(jwt_payload)
-    db.find(jwt_payload.id, function(err, user) {
-        if (err) {
-            return done(err, false);
-        }
-        if (user) {
-            return done(null, user);
-        } else {
-            return done(null, false);
-        }
-    });
-}));
-
-
 // CORS Configuration
 const origin = [
   'http://localhost:3001',
@@ -130,6 +108,25 @@ function ensureAuthenticated(req, res, next) {
   res.status(401).json({ message: 'Non sei autenticato' });
 }
 
+//TOKEN JwtStrategy
+const jwtOpts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET
+};
+
+passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
+  console.log(jwt_payload)
+    db.find(jwt_payload.id, function(err, user) {
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false);
+        }
+    });
+}));
 
 // Routes
 app.get('/', (req, res) => {
