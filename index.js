@@ -41,6 +41,29 @@ passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
 }));
 
 
+// Authentication Middleware
+function ensureAuthenticated(req, res, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).json({ message: 'Non sei autenticato' });
+    req.user = user;
+    console.log(req.user.email)
+    next();
+  })(req, res, next);
+}
+
+
+/* function ensureAuthenticated(req, res, next) {
+  console.log('Verifying authentication...');
+  if (req.isAuthenticated()) {
+  console.log('User is authenticated');
+  return next();
+  }
+  console.log('User is not authenticated');
+  res.status(401).json({ message: 'Non sei autenticato' });
+  }
+ */
+
 // CORS Configuration
 const origin = [
   'http://localhost:3001',
@@ -111,22 +134,12 @@ passport.deserializeUser((id, done) => {
 app.use(flash());
 
 // Check in log
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   console.log('Session:', req.session);
   console.log('User:', req.user);
   next();
 });
-
-
-// Authentication Middleware
-function ensureAuthenticated(req, res, next) {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.status(401).json({ message: 'Non sei autenticato' });
-    req.user = user;
-    next();
-  })(req, res, next);
-}
+ */
 
 
 // Routes

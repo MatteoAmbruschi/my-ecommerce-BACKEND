@@ -658,7 +658,8 @@ async function find(id, callback) {
 
 
 const dashboard = (req, res) => {
-    
+    console.log(req.user.email)
+
     if (!req.user || !req.user.email) {
         return res.status(401).json({ error: 'User not authenticated or email not found' });
     }
