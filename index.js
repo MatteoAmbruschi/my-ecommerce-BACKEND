@@ -134,12 +134,12 @@ passport.deserializeUser((id, done) => {
 app.use(flash());
 
 // Check in log
-/* app.use((req, res, next) => {
+app.use((req, res, next) => {
   console.log('Session:', req.session);
   console.log('User:', req.user);
   next();
 });
- */
+
 
 
 // Routes
@@ -267,7 +267,6 @@ app.post('/logout', (req, res, next) => {
         return next(err);
       }
       res.clearCookie('connect.sid');
-      localStorage.removeItem('authToken');
       res.status(200).json({ message: 'Logout done' });
     });
   });
