@@ -171,7 +171,7 @@ app.delete('/users', db.deleteUser);
 app.put('/details/:id', db.updateDetail);
 
 app.get('/allCart', db.getCartUser);
-app.put('/cart/:id', db.updateCart);
+app.put('/cart/:id', ensureAuthenticated, db.updateCart);
 
 app.delete('/cart/:id', ensureAuthenticated, db.deleteCart);
 app.get('/cart', ensureAuthenticated, db.cartActive);
