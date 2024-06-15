@@ -109,15 +109,15 @@ app.use((req, res, next) => {
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
- 
-  app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
+  
+  passport.authenticate('jwt', {session: false}), (req,res) => {
     res.status(200).send({ 
       success: true, 
       user: {
           id: req.user.id,
           email: req.user.email
     } })
-  })
+  }
 
   console.log('Verifying authentication...');
   if (req.isAuthenticated()) {
