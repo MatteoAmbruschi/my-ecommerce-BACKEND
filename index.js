@@ -3,7 +3,6 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const db = require('./queries');
@@ -68,8 +67,8 @@ const corsOptions = {
 }
 
 app.use(compression());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
