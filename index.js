@@ -20,6 +20,47 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 const app = express();
 const port = process.env.PORT || 3000;
 
+
+// Middleware ensureAuthenticated
+function ensureAuthenticated(req, res, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      console.error('Error in authentication:', err);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    if (!user) {
+      console.log('User not authenticated:', info.message);
+      return res.status(401).json({ message: 'Non sei autenticato' });
+    }
+    // Se l'autenticazione ha successo, aggiungi l'utente alla richiesta
+    req.user = user;
+    console.log('User is authenticated');
+    return next();
+  })(req, res, next); // Invoca il middleware di autenticazione con req, res, next
+}
+
+// Configurazione JwtStrategy
+const jwtOpts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET
+};
+
+passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
+  console.log(jwt_payload);
+  db.find(jwt_payload.id, function(err, user) {
+    if (err) {
+      return done(err, false);
+    }
+    if (user) {
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
+  });
+}));
+
+
+
 // CORS Configuration
 const origin = [
   'http://localhost:3001',
@@ -96,47 +137,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-// Authentication Middleware
-function ensureAuthenticated(req, res, next) {
-  console.log('Verifying authentication...');
-
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      console.error('Error in authentication:', err);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    if (!user) {
-      console.log('User not authenticated:', info.message);
-      return res.status(401).json({ message: 'Non sei autenticato' });
-    }
-
-    console.log(user)
-    req.user = user;
-    console.log('User is authenticated');
-    return next();
-  })(req, res, next);
-}
-
-//TOKEN JwtStrategy
-const jwtOpts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET
-};
-
-passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
-  console.log(jwt_payload)
-    db.find(jwt_payload.id, function(err, user) {
-        if (err) {
-            return done(err, false);
-        }
-        if (user) {
-            return done(null, user);
-        } else {
-            return done(null, false);
-        }
-    });
-}));
 
 // Routes
 app.get('/', (req, res) => {
