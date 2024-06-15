@@ -14,9 +14,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
 const helmet = require('helmet');
 const compression = require('compression');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-/* const MemoryStore = require('memorystore')(session) */
+/* const cookieParser = require('cookie-parser'); */
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -56,8 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
-app.use(cookieParser());
-/* app.use(logger('dev')); */
+/* app.use(cookieParser()); */
 
 
 // Session Configuration
