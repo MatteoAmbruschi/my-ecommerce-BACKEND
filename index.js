@@ -21,13 +21,13 @@ const port = process.env.PORT || 3000;
 
 
 //TOKEN JwtStrategy
-/* const jwtOpts = {
+const jwtOpts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 };
- */
-/* passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
-  console.log('IL MIO PAYLOAD è '+ jwt_payload)
+
+passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
+  console.log('IL MIO PAYLOAD è '+ jwt_payload.id)
     db.find(jwt_payload.id, function(err, user) {
         if (err) {
             return done(err, false);
@@ -38,7 +38,7 @@ const port = process.env.PORT || 3000;
             return done(null, false);
         }
     });
-})); */
+}));
 
 
 // CORS Configuration
@@ -120,13 +120,12 @@ app.use((req, res, next) => {
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
-  console.log('Verifying authentication...');
-  if (req.isAuthenticated()) {
-    console.log('User is authenticated');
-    return next();
-  }
-  console.log('User is not authenticated');
-  res.status(401).json({ message: 'Non sei autenticato' });
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).json({ message: 'Non sei autenticato' });
+    req.user = user;
+    next();
+  })(req, res, next);
 }
 
 
