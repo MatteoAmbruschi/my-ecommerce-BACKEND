@@ -8,6 +8,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const db = require('./queries');
 const session = require("express-session");
+const store = new session.MemoryStore();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
@@ -15,7 +16,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const MemoryStore = require('memorystore')(session)
+/* const MemoryStore = require('memorystore')(session) */
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -64,13 +65,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: new MemoryStore({
-    checkPeriod: 86400000, // Check expired sessions every 24 hours
-    ttl: 24 * 60 * 60 * 1000, // Session TTL: 24 hours
-    dispose: (key, value) => {
-      console.log(`Session ${key} is being disposed.`);
-    },
-  }),
+  store,
   cookie: {
     httpOnly: true,
     sameSite: 'none',
