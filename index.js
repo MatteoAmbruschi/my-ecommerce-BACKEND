@@ -109,16 +109,6 @@ app.use((req, res, next) => {
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
-  
-  passport.authenticate('jwt', {session: false}), (req,res) => {
-    res.status(200).send({ 
-      success: true, 
-      user: {
-          id: req.user.id,
-          email: req.user.email
-    } })
-  }
-
   console.log('Verifying authentication...');
   if (req.isAuthenticated()) {
     console.log('User is authenticated');
@@ -126,6 +116,20 @@ function ensureAuthenticated(req, res, next) {
   }
   console.log('User is not authenticated');
   res.status(401).json({ message: 'Non sei autenticato' });
+}
+
+
+function authMiddleware(req, res, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).json({ message: 'Non sei autenticato' });
+    }
+    req.user = user;
+    next();
+  })(req, res, next);
 }
 
 
@@ -168,7 +172,7 @@ app.put('/cart/:id', ensureAuthenticated, db.addCart);
 app.get('/orders', ensureAuthenticated, db.cartInactive);
 app.get('/shipUser', ensureAuthenticated, db.getShipments);
 
-app.get('/dashboard', ensureAuthenticated, db.dashboard);
+app.get('/dashboard', ensureAuthenticated, authMiddleware, db.dashboard);
 app.get('/login', db.login);
 
 // Registration Route
@@ -282,15 +286,7 @@ app.post('/logout', (req, res, next) => {
   });
 });
 
-// TUTORIAL INDIANO
-/* app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
-  res.status(200).send({ 
-    success: true, 
-    user: {
-        id: req.user.id,
-        email: req.user.email
-  } })
-}) */
+
 
 // Start server
 app.listen(port, () => {
