@@ -126,7 +126,7 @@ const jwtOpts = {
   secretOrKey: process.env.JWT_SECRET
 };
 
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
   console.log(jwt_payload)
     db.find(jwt_payload.id, function(err, user) {
         if (err) {
