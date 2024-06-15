@@ -9,14 +9,14 @@ const bcrypt = require('bcrypt');
 const db = require('./queries');
 const session = require("express-session");
 const passport = require('passport');
-const { Strategy } = require("passport-local");
+const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
 const helmet = require('helmet');
 const compression = require('compression');
-const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const MemoryStore = require('memorystore')(session)
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -118,6 +118,13 @@ function ensureAuthenticated(req, res, next) {
   res.status(401).json({ message: 'Non sei autenticato' });
 }
 
+
+function authMiddleware(req, res, next) {
+
+}
+
+
+
 // Routes
 app.get('/', (req, res) => {
   res.status(200).send('Naviga nel mio e-commerce!')
@@ -187,7 +194,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Passport Local Strategy
-passport.use(new Strategy(
+passport.use(new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password'
@@ -214,6 +221,29 @@ passport.use(new Strategy(
   }
 ));
 
+//TOKEN JwtStrategy
+const JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = process.env.JWT_SECRET;
+
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+  console.log(jwt_payload)
+    db.findById(jwt_payload.id, function(err, user) {
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false);
+        }
+    });
+}));
+
+
+
 // Login Route
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -228,7 +258,7 @@ app.post('/login', (req, res, next) => {
         return res.status(500).json({ message: 'Login failed' });
       }
       const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      return res.status(200).json({ message: 'Login effettuato con successo', token });
+      return res.status(200).json({ message: 'Login effettuato con successo', token: "Bearer " + token });
     });
   })(req, res, next);
 });
@@ -246,6 +276,16 @@ app.post('/logout', (req, res, next) => {
     });
   });
 });
+
+// TUTORIAL INDIANO
+app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
+  res.status(200).send({ 
+    success: true, 
+    user: {
+        id: req.user.id,
+        email: req.user.email
+  } })
+})
 
 // Start server
 app.listen(port, () => {
