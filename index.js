@@ -120,22 +120,25 @@ function ensureAuthenticated(req, res, next) {
   res.status(401).json({ message: 'Non sei autenticato' });
 }
 
+//TOKEN JwtStrategy
+const jwtOpts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET
+};
 
-function authMiddleware(req, res, next) {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      console.error('Error in authMiddleware:', err);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    if (!user) {
-      console.log('User not authenticated:', info.message);
-      return res.status(401).json({ message: 'Non sei autenticato' });
-    }
-    req.user = user;
-    next();
-  })(req, res, next);
-}
-
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+  console.log(jwt_payload)
+    db.find(jwt_payload.id, function(err, user) {
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false);
+        }
+    });
+}));
 
 // Routes
 app.get('/', (req, res) => {
@@ -232,35 +235,6 @@ passport.use(new LocalStrategy(
     });
   }
 ));
-
-//TOKEN JwtStrategy
-const cookieExtractor = function(req) {
-  let token = null;
-  if (req && req.cookies) {
-      token = req.cookies['jwt'];
-  }
-  return token;
-};
-
-var opts = {
-  jwtFromRequest: cookieExtractor,
-  secretOrKey: process.env.JWT_SECRET
-};
-
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-  console.log(jwt_payload)
-    db.find(jwt_payload.id, function(err, user) {
-        if (err) {
-            return done(err, false);
-        }
-        if (user) {
-            return done(null, user);
-        } else {
-            return done(null, false);
-        }
-    });
-}));
-
 
 
 // Login Route
