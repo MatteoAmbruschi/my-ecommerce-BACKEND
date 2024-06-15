@@ -71,7 +71,7 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    sameSite: false,
+    sameSite: 'none',
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000
   }
@@ -122,16 +122,17 @@ function ensureAuthenticated(req, res, next) {
 function authMiddleware(req, res, next) {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      return next(err);
+      console.error('Error in authMiddleware:', err);
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
     if (!user) {
+      console.log('User not authenticated:', info.message);
       return res.status(401).json({ message: 'Non sei autenticato' });
     }
     req.user = user;
     next();
   })(req, res, next);
 }
-
 
 
 // Routes
@@ -239,7 +240,7 @@ opts.secretOrKey = process.env.JWT_SECRET;
 
 passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
   console.log(jwt_payload)
-    db.findById(jwt_payload.id, function(err, user) {
+    db.find(jwt_payload.id, function(err, user) {
         if (err) {
             return done(err, false);
         }

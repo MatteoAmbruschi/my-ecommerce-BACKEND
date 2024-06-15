@@ -638,6 +638,25 @@ const findById = (id, callback) => {
 }
 
 
+async function find(id, callback) {
+    const client = await pool.connect();
+  
+    try {
+      const result = await client.query('SELECT * FROM clienti WHERE id = $1', [id]);
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+        return callback(null, user);
+      } else {
+        return callback(null, false); // Utente non trovato
+      }
+    } catch (err) {
+      return callback(err, false); // Gestione degli errori
+    } finally {
+      client.release(); // Rilascia il client della pool
+    }
+  }
+
+
 const dashboard = (req, res) => {
     
     if (!req.user || !req.user.email) {
@@ -786,6 +805,7 @@ module.exports = {
     deleteCart,
     findByEmail,
     findById,
+    find,
     dashboard,
     login,
     getCategory,
