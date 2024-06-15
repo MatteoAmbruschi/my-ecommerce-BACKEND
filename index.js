@@ -267,6 +267,7 @@ app.post('/logout', (req, res, next) => {
         return next(err);
       }
       res.clearCookie('connect.sid');
+      localStorage.removeItem('authToken');
       res.status(200).json({ message: 'Logout done' });
     });
   });
