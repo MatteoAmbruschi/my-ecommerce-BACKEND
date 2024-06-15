@@ -109,6 +109,16 @@ app.use((req, res, next) => {
 
 // Authentication Middleware
 function ensureAuthenticated(req, res, next) {
+ 
+  app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
+    res.status(200).send({ 
+      success: true, 
+      user: {
+          id: req.user.id,
+          email: req.user.email
+    } })
+  })
+
   console.log('Verifying authentication...');
   if (req.isAuthenticated()) {
     console.log('User is authenticated');
@@ -116,11 +126,6 @@ function ensureAuthenticated(req, res, next) {
   }
   console.log('User is not authenticated');
   res.status(401).json({ message: 'Non sei autenticato' });
-}
-
-
-function authMiddleware(req, res, next) {
-
 }
 
 
@@ -278,14 +283,14 @@ app.post('/logout', (req, res, next) => {
 });
 
 // TUTORIAL INDIANO
-app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
+/* app.get('/protected', passport.authenticate('jwt', {session: false}), (req,res) => {
   res.status(200).send({ 
     success: true, 
     user: {
         id: req.user.id,
         email: req.user.email
   } })
-})
+}) */
 
 // Start server
 app.listen(port, () => {
