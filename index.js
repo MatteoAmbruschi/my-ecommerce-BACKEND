@@ -167,13 +167,13 @@ app.get('/allCart', db.getCartUser);
 app.put('/cart/:id', db.updateCart);
 
 app.delete('/cart/:id', ensureAuthenticated, db.deleteCart);
-app.get('/cart', ensureAuthenticated, authMiddleware, db.cartActive);
+app.get('/cart', ensureAuthenticated, db.cartActive);
 app.post('/cart', ensureAuthenticated, db.createCart);
 app.put('/cart/:id', ensureAuthenticated, db.addCart);
 app.get('/orders', ensureAuthenticated, db.cartInactive);
 app.get('/shipUser', ensureAuthenticated, db.getShipments);
 
-app.get('/dashboard', ensureAuthenticated, authMiddleware, db.dashboard);
+app.get('/dashboard', ensureAuthenticated, db.dashboard);
 app.get('/login', db.login);
 
 // Registration Route
