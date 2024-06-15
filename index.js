@@ -21,12 +21,12 @@ const port = process.env.PORT || 3000;
 
 
 //TOKEN JwtStrategy
-/* const jwtOpts = {
+const jwtOpts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 };
- */
-/* passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
+
+passport.use(new JwtStrategy(jwtOpts, function(jwt_payload, done) {
   console.log('IL MIO PAYLOAD è '+ jwt_payload)
     db.find(jwt_payload.id, function(err, user) {
         if (err) {
@@ -38,7 +38,7 @@ const port = process.env.PORT || 3000;
             return done(null, false);
         }
     });
-})); */
+}));
 
 
 // CORS Configuration
