@@ -17,6 +17,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const MemoryStore = require('memorystore')(session)
 const jwt = require('jsonwebtoken');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -232,11 +234,18 @@ passport.use(new LocalStrategy(
 ));
 
 //TOKEN JwtStrategy
-const JwtStrategy = require('passport-jwt').Strategy,
-    ExtractJwt = require('passport-jwt').ExtractJwt;
-var opts = {}
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = process.env.JWT_SECRET;
+const cookieExtractor = function(req) {
+  let token = null;
+  if (req && req.cookies) {
+      token = req.cookies['jwt'];
+  }
+  return token;
+};
+
+var opts = {
+  jwtFromRequest: cookieExtractor,
+  secretOrKey: process.env.JWT_SECRET
+};
 
 passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
   console.log(jwt_payload)
