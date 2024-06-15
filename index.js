@@ -12,9 +12,7 @@ const store = new session.MemoryStore();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
-const helmet = require('helmet');
 const compression = require('compression');
-/* const cookieParser = require('cookie-parser'); */
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -47,14 +45,12 @@ const corsOptions = {
   credentials: true
 }
 
-app.use(helmet());
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
-/* app.use(cookieParser()); */
 
 
 // Session Configuration
