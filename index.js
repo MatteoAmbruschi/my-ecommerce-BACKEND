@@ -181,7 +181,7 @@ app.get('/orders', ensureAuthenticated, db.cartInactive);
 app.get('/shipUser', ensureAuthenticated, db.getShipments);
 
 app.get('/dashboard', ensureAuthenticated, db.dashboard);
-app.get('/login', db.login);
+app.get('/login', ensureAuthenticated, db.login);
 
 // Registration Route
 app.post('/register', async (req, res) => {
