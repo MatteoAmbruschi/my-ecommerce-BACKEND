@@ -509,27 +509,6 @@ const getCartUser = (req, res) => {
         res.status(200).send(result.rows)
     })
 }
-    
-
-
-const updateCart = (req, res) => {
-    const id = req.params.id;
-    const { prodotto_id, quantita } = req.body;
-    const { email } = req.user
-
-    pool.query('UPDATE carrello SET prodotto_id = $1, quantita = $2, cliente_email = $3 WHERE id = $4 AND cliente_email = $5', [ prodotto_id, quantita, email, id, email], (err, result) => {
-        if (err) {
-            console.error('Errore durante l\'aggiornamento del carrello:', err);
-            res.status(500).json({ error: 'Errore durante l\'aggiornamento del carrello' });
-            return;
-        }
-        if (result.rowCount === 0) {
-            res.status(404).json({ message: `Nessun carrello trovato con l'ID: ${id}` });
-            return;
-        }
-        res.status(200).send(`Prodotto modificato con l'ID: ${id}`);
-    });
-};
 
 
 const createCart = (req, res) => {
@@ -563,7 +542,7 @@ const createCart = (req, res) => {
 
 
 const addCart = (req, res) => {
-    const { id } = req.params.id;
+    const id = req.params.id;
     const { quantita } = req.body;
     const { email } = req.user;
     
@@ -581,7 +560,7 @@ const addCart = (req, res) => {
           res.status(500).json({ error: 'Error adding to cart' });
           return;
         }
-        if (result.rowCount === 0) {
+        else if (result.rowCount === 0) {
           res.status(404).json({ message: `No cart found with ID: ${id}` });
           return;
         }
@@ -607,7 +586,7 @@ const deleteCart = (req, res) => {
         return res.status(500).json({ error: 'Error deleting product from cart' });
       }
   
-      res.status(200).send(`Prodotto eliminato con l'ID: ${id}`);
+      res.status(200).json({ message: `Prodotto eliminato con l'ID: ${id}` });
     });
   };
 
@@ -800,7 +779,6 @@ module.exports = {
     deleteOrder,
     getAllProducts,
     getOrdersProdottiById,
-    updateCart,
     createCart,
     addCart,
     deleteCart,

@@ -64,7 +64,7 @@ function ensureAuthenticated(req, res, next) {
   }
  */
 
-  
+
 // CORS Configuration
 const origin = [
   'http://localhost:3001',
@@ -172,7 +172,6 @@ app.delete('/users', db.deleteUser);
 app.put('/details/:id', db.updateDetail);
 
 app.get('/allCart', db.getCartUser);
-app.put('/cart/:id', ensureAuthenticated, db.updateCart);
 
 app.delete('/cart/:id', ensureAuthenticated, db.deleteCart);
 app.get('/cart', ensureAuthenticated, db.cartActive);
