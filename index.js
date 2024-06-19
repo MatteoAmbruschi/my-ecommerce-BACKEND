@@ -7,7 +7,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const db = require('./queries');
 const session = require("express-session");
-const store = new session.MemoryStore();
+const MemoryStore = require('memorystore')(session)
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
@@ -103,7 +103,13 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store,
+  store: new MemoryStore({ 
+    checkPeriod: 86400000, // Check expired sessions every 24 hours
+    ttl: 7 * 24 * 60 * 60 * 1000, // Session TTL: 7 days
+    dispose: (key, value) => {
+      console.log(`Session ${key} is being disposed.`);
+    },
+  }),
   cookie: {
     httpOnly: true,
     sameSite: 'none',
@@ -252,7 +258,7 @@ app.post('/login', (req, res, next) => {
       if (err) {
         return res.status(500).json({ message: 'Login failed' });
       }
-      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
       return res.status(200).json({ message: 'Login effettuato con successo', token: "Bearer " + token });
     });
   })(req, res, next);
