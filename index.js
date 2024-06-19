@@ -10,7 +10,6 @@ const session = require("express-session");
 const MemoryStore = require('memorystore')(session)
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const flash = require('connect-flash');
 const compression = require('compression');
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
@@ -139,8 +138,6 @@ passport.deserializeUser((id, done) => {
   });
 });
 
-
-app.use(flash());
 
 // Check in log
 app.use((req, res, next) => {
