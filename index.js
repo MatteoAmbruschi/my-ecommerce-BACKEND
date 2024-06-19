@@ -15,6 +15,7 @@ const compression = require('compression');
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
+const helmet = require('helmet');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -90,6 +91,7 @@ const corsOptions = {
   credentials: true
 }
 
+app.use(helmet());
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
