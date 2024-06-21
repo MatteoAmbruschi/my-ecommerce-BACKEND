@@ -15,6 +15,7 @@ const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const helmet = require('helmet');
+const stripe = require('./stripe')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -140,11 +141,11 @@ passport.deserializeUser((id, done) => {
 
 
 // Check in log
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   console.log('Session:', req.session);
   console.log('User:', req.user);
   next();
-});
+}); */
 
 
 
@@ -152,6 +153,9 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.status(200).send('Naviga nel mio e-commerce!')
 });
+
+//PAYMENT
+app.post('/create-checkout-session', stripe);
 
 // Example routes
 app.get('/products/:id', db.getProductsDetailById);
