@@ -22,7 +22,7 @@ const stripe = require('stripe')(process.env.SK_TEST);
                 product_data: {
                 name: item.nome,
                 images: [`https://my-ecommerce-frontend-chi.vercel.app/uploads/${item.image_urls[0]}`, `https://my-ecommerce-frontend-chi.vercel.app/uploads/${item.image_urls[1]}`],
-                description: item.descrizione,
+                description: `${item.descrizione}, size: ${item.taglia_selezionata}`,
                 metadata: {
                     id: item.carrello_id
                 }
