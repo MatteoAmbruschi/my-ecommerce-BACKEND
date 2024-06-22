@@ -109,7 +109,7 @@ const db = require('./queries')
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 let endpointSecret;
 /* endpointSecret = "whsec_05a32f174167b5cdfd4a020e5666126e05a86550ed7bafcf8036a98e7e85bd5d"; */
-endpointSecret = 'whsec_m9utAEusS6p0ZbbJu1L41nj8442V1DYX'
+/* endpointSecret = 'whsec_m9utAEusS6p0ZbbJu1L41nj8442V1DYX' */
 
 router.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
   const sig = request.headers['stripe-signature'];
