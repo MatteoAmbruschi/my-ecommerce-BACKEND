@@ -17,7 +17,6 @@ const db = require('./queries')
 
     const customer = await stripe.customers.create({
         metadata: {
-            userId: req.body.userId,
             cart: JSON.stringify(req.body.cartItems.map((item) => item.carrello_id))
         }
     })
@@ -145,7 +144,6 @@ router.post('/webhook', express.raw({type: 'application/json'}), (request, respo
     .then((customer) => {
         let cart = customer.metadata.cart;
         console.log(cart);  
-        console.log(customer.metadata.userId); 
         /* console.log("data:", data) */
   
         if (typeof cart === 'string') {
