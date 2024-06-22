@@ -155,7 +155,7 @@ app.get('/', (req, res) => {
 });
 
 //PAYMENT
-app.post('/create-checkout-session', stripe);
+app.use('/stripe', stripe);
 
 // Example routes
 app.get('/products/:id', db.getProductsDetailById);
@@ -169,8 +169,6 @@ app.get('/orders/:id', db.getOrdersById);
 app.put('/orders/:id', db.updateOrdersById);
 app.delete('/orders/:id', db.deleteOrder);
 app.get('/orders/:id/detail', db.getOrdersProdottiById);
-
-app.post('/cart/:cartId/checkout', db.checkout);
 
 app.get('/allUsers', db.getAllUsers);
 app.get('/users/:id', db.getUsersByID);

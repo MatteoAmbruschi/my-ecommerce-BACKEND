@@ -10,7 +10,7 @@ const pool = new Pool({
     database: process.env.DATABASE,
     password: process.env.PASSWORD,
     port: process.env.PORT_POOL,
-    ssl: {
+    ssl: process.env.NODE_ENV !== 'production' ? false : {
         rejectUnauthorized: false
     }
 })
@@ -242,67 +242,53 @@ const deleteOrder = (req, res) => {
 }
 
 
-const cardValidator = require('card-validator');
-const checkout = (req, res) => {
-    const cartId = req.params.cartId; //cambio in email per prendere tutti quelli attivi sull'email
-    const { paymentDetails } = req.body;
-
-    if(paymentDetails.cardNumber.length === 0 || paymentDetails.expiryDate.length === 0 || paymentDetails.cvv.length === 0 ||  paymentDetails.billingAddress.length === 0){
-        res.status(500).send('Dati carta non inseriti');
-        return;
-    }
-
-
-    if (!cardValidator.number(paymentDetails.cardNumber).isValid) {
-        res.status(500).send('Errore durante la verifica della carta');
-        return;
-    }
-
-    pool.query('SELECT * FROM ordini WHERE carrello_id = $1', [cartId], (err, result) => {
-        if (err) {
-            console.error('Errore durante la verifica dell\'esistenza dell\'ordine:', err);
-            res.status(500).send('Errore durante la verifica dell\'esistenza dell\'ordine');
-            return;
-        }
-
-        if (result.rows.length > 0) {
-            res.status(400).send('Il carrello ha già un ordine associato');
-            return;
-        }
-
-        const orderDate = new Date();
-        const orderStatus = 'In attesa';
-
-        
-        pool.query('UPDATE carrello SET attivo = FALSE WHERE id = $1', [cartId], (err, result) => {
-            if(err) {
-                throw err
+//cambio in email per prendere tutti quelli attivi sull'email
+const checkout = (cartId) => {
+    return new Promise((resolve, reject) => {
+        pool.query('SELECT * FROM ordini WHERE carrello_id = $1', [cartId], (err, result) => {
+            if (err) {
+                console.error('Errore durante la verifica dell\'esistenza dell\'ordine:', err);
+                reject('Errore durante la verifica dell\'esistenza dell\'ordine');
+                return;
             }
 
-            
-        pool.query(
-            'INSERT INTO ordini (data_ordine, stato, carrello_id) VALUES ($1, $2, $3) RETURNING *',
-            [orderDate, orderStatus, cartId],
-            (err, result) => {
+            if (result.rows.length > 0) {
+                reject('Il carrello ha già un ordine associato');
+                return;
+            }
+
+            const orderDate = new Date();
+            const orderStatus = 'Pending';
+
+            pool.query('UPDATE carrello SET attivo = FALSE WHERE id = $1', [cartId], (err, result) => {
                 if (err) {
-                    console.error('Errore durante la creazione dell\'ordine:', err);
-                    res.status(500).send('Errore durante la creazione dell\'ordine');
+                    reject(err);
                     return;
                 }
 
-                if (result.rows.length === 0) {
-                    res.status(404).send('Nessun ordine creato');
-                    return;
-                }
+                pool.query(
+                    'INSERT INTO ordini (data_ordine, stato, carrello_id) VALUES ($1, $2, $3) RETURNING *',
+                    [orderDate, orderStatus, cartId],
+                    (err, result) => {
+                        if (err) {
+                            console.error('Errore durante la creazione dell\'ordine:', err);
+                            reject('Errore durante la creazione dell\'ordine');
+                            return;
+                        }
 
-                const order = result.rows[0];
-                res.status(200).json({
-                    message: 'Ordine creato con successo',
-                    order: order,
-                    paymentDetails: paymentDetails
-                });
+                        if (result.rows.length === 0) {
+                            reject('Nessun ordine creato');
+                            return;
+                        }
+
+                        const order = result.rows[0];
+                        resolve({
+                            message: 'Ordine creato con successo',
+                            order: order,
+                        });
+                    });
             });
-        })
+        });
     });
 };
 
