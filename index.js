@@ -88,9 +88,7 @@ const origin = [
 const corsOptions = {
   origin,
   optionsSuccessStatus: 200,
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
+  credentials: true
 }
 
 app.use(helmet());
