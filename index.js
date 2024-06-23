@@ -98,11 +98,11 @@ app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
 
 app.use((req, res, next) => {
-  if (req.originalUrl === '/stripe/webhook') {
-    console.log(req.originalUrl)
+  if (req.path === '/stripe/webhook') {
+    console.log(req.path)
     next(); // Skip body parsing middleware for /stripe/webhook
   } else {
-    console.log(req.originalUrl)
+    console.log(req.path)
     express.json()(req, res, next); // Use bodyParser for other routes
   }
 });
