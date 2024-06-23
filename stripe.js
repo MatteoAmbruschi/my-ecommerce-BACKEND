@@ -107,64 +107,68 @@ const db = require('./queries')
   // Stripe webhook
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
+let endpointSecret;
+/* endpointSecret = "whsec_05a32f174167b5cdfd4a020e5666126e05a86550ed7bafcf8036a98e7e85bd5d"; */
 /* endpointSecret = 'whsec_m9utAEusS6p0ZbbJu1L41nj8442V1DYX' */
-const endpointSecret = process.env.STRIPE_SECRET;
 
-router.post('/webhook', express.raw({ type: 'application/json' }), (request, response) => {
-    const sig = request.headers['stripe-signature'];
+router.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+  const sig = request.headers['stripe-signature'];
 
-    let data;
-    let eventType;
+  let data;
+  let eventType;
 
-    try {
-        const event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-        console.log('Webhook verified.');
-        data = event.data.object;
-        eventType = event.type;
-    } catch (err) {
-        console.log(`Webhook Error: ${err.message}`);
+  if(endpointSecret) {
+
+      let event;
+    
+      try {
+        event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+        console.log('Webhook verified.')
+      } catch (err) {
+        console.log(`Webhook Error: ${err.message}`)
         response.status(400).send(`Webhook Error: ${err.message}`);
         return;
-    }
+      }
 
-    // Handle the event
-    if (eventType === 'checkout.session.completed') {
-        stripe.customers.retrieve(data.customer)
-            .then((customer) => {
-                let cart = customer.metadata.cart;
-                console.log(cart);
+      data = event.data.object
+      eventType = event.type
+  } else {
+    data = request.body.data.object;
+    eventType = request.body.type
+  }
 
-                if (typeof cart === 'string') {
-                    try {
-                        cart = JSON.parse(cart);
-                    } catch (error) {
-                        console.error('Error parsing cart:', error);
-                    }
-                }
 
-                // Check if cart is now an array
-                if (Array.isArray(cart)) {
-                    Promise.all(cart.map((cartId) => db.checkout(cartId)))
-                        .then(results => {
-                            console.log('All checkouts completed successfully:', results);
-                            response.status(200).send('All checkouts completed successfully');
-                        })
-                        .catch(err => {
-                            console.error('Error in one of the checkouts:', err);
-                            response.status(500).send('Error in one of the checkouts');
-                        });
-                } else {
-                    console.error('customer.metadata.cart is not an array after parsing');
-                    response.status(400).send('customer.metadata.cart is not an array after parsing');
-                }
-            })
-            .catch(err => {
-                console.log(err.message);
-                response.status(500).send(err.message);
-            });
-    } else {
-        response.status(400).send('Event type not handled');
-    }
+  // Handle the event
+  if(eventType === 'checkout.session.completed') {
+    stripe.customers
+    .retrieve(data.customer)
+    .then((customer) => {
+        let cart = customer.metadata.cart;
+        console.log(cart);  
+        /* console.log("data:", data) */
+  
+        if (typeof cart === 'string') {
+            try {
+                cart = JSON.parse(cart);
+            } catch (error) {
+                console.error('Error parsing cart:', error);
+            }
+        }
+
+        // Check if cart is now an array
+        if (Array.isArray(cart)) {
+            cart.map((cartId) => (
+                db.checkout(cartId)
+            ));
+        } else {
+            console.error('customer.metadata.cart is not an array after parsing');
+        }
+     }
+    ).catch(err => console.log(err.message))
+  }
+
+
+  response.send().end();
 });
 
 
