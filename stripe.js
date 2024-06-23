@@ -167,7 +167,7 @@ router.post('/webhook', express.raw({type: 'application/json'}), (request, respo
             console.error('Error processing checkout:', err);
             response.status(500).send('Error processing checkout');
         });
-    }
+}
 });
 
 
