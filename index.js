@@ -93,11 +93,19 @@ const corsOptions = {
 
 app.use(helmet());
 app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.set('trust proxy', 1);
+
+app.use((req, res, next) => {
+  if (req.originalUrl === '/stripe/webhook') {
+    next(); // Skip body parsing middleware for /stripe/webhook
+  } else {
+    express.json()(req, res, next); // Use bodyParser for other routes
+  }
+});
+app.use(express.urlencoded({ extended: true }));
+
 
 
 // Session Configuration
