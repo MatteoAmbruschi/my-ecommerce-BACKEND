@@ -139,33 +139,35 @@ router.post('/webhook', express.raw({type: 'application/json'}), (request, respo
 
 
   // Handle the event
-  if(eventType === 'checkout.session.completed') {
-    stripe.customers
-    .retrieve(data.customer)
-    .then((customer) => {
-        let cart = customer.metadata.cart;
-        console.log(cart);  
-        /* console.log("data:", data) */
-  
-        if (typeof cart === 'string') {
+  if (eventType === 'checkout.session.completed') {
+    stripe.customers.retrieve(data.customer)
+        .then((customer) => {
+            let cart = customer.metadata.cart;
+            console.log('Customer Cart:', cart);
+            
             try {
                 cart = JSON.parse(cart);
             } catch (error) {
                 console.error('Error parsing cart:', error);
+                throw new Error('Unable to parse cart data');
             }
-        }
 
-        // Check if cart is now an array
-        if (Array.isArray(cart)) {
-            cart.map((cartId) => (
-                db.checkout(cartId)
-            ));
-        } else {
-            console.error('customer.metadata.cart is not an array after parsing');
-        }
-     }
-    ).catch(err => console.log(err.message))
-  }
+            if (Array.isArray(cart)) {
+                return Promise.all(cart.map((cartId) => db.checkout(cartId)));
+            } else {
+                console.error('customer.metadata.cart is not an array after parsing');
+                throw new Error('Cart data is not in expected format');
+            }
+        })
+        .then((results) => {
+            console.log('All checkouts completed successfully:', results);
+            response.status(200).send('All checkouts completed successfully');
+        })
+        .catch((err) => {
+            console.error('Error processing checkout:', err);
+            response.status(500).send('Error processing checkout');
+        });
+}
 
 
   response.send().end();
