@@ -22,7 +22,6 @@ const db = require('./queries')
     })
 
     const line_items = req.body.cartItems.map((item) => {
-        console.log(`${process.env.CLIENT_URL}/uploads/${item.image_urls[0]}`);
         return{
                 price_data: {
                 currency: 'eur',
@@ -31,7 +30,9 @@ const db = require('./queries')
                 images: [`https://my-ecommerce-frontend-chi.vercel.app/uploads/${item.image_urls[0]}`, `https://my-ecommerce-frontend-chi.vercel.app/uploads/${item.image_urls[1]}`],
                 description: `${item.descrizione}, size: ${item.taglia_selezionata}`,
                 metadata: {
-                    id: item.carrello_id
+                    id: item.carrello_id,
+                    prezzo_tot: item.prezzo_tot,
+                    email_user: item.cliente_email
                 }
                 },
                 unit_amount: Number(item.prezzo) * 100,
@@ -41,7 +42,6 @@ const db = require('./queries')
         }
     );
 
-  console.log(line_items)
 
     const session = await stripe.checkout.sessions.create({
 
@@ -93,7 +93,7 @@ const db = require('./queries')
       customer: customer.id,
       line_items,
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/payment/checkout-success`,
+      success_url: `${process.env.CLIENT_URL}/payment/checkout-success?email=${line_items[0].price_data.product_data.metadata.email_user}&total=${line_items[0].price_data.product_data.metadata.prezzo_tot}`,
       cancel_url: `${process.env.CLIENT_URL}/payment`,
     });
   
