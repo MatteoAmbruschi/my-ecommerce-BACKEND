@@ -167,7 +167,7 @@ app.put('/products/:id', db.updateProduct);
 
 app.get('/orders/:id', db.getOrdersById);
 app.put('/orders/:id', db.updateOrdersById);
-app.delete('/orders/:id', db.deleteOrder);
+app.delete('/orders/:id', ensureAuthenticated, db.deleteOrder);
 app.get('/orders/:id/detail', db.getOrdersProdottiById);
 
 app.get('/allUsers', db.getAllUsers);

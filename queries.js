@@ -234,9 +234,10 @@ const deleteOrder = (req, res) => {
         'DELETE FROM ordini WHERE id IN (SELECT ordini.id FROM ordini INNER JOIN carrello ON ordini.carrello_id = carrello.id WHERE ordini.carrello_id = $1 AND cliente_email = $2)', 
         [id, email], (err, result) => {
             if(err){
+                res.status(500).send('Error deleting order');
                 throw err
             }
-            res.status(200).send(`Ordine eliminato con l'ID: ${id}`)
+            res.status(200).json({message: `Ordine eliminato con l'ID: ${id}`})
         }
     )
 }

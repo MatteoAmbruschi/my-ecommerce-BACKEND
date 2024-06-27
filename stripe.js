@@ -31,7 +31,6 @@ const db = require('./queries')
                 description: `${item.descrizione}, size: ${item.taglia_selezionata}`,
                 metadata: {
                     id: item.carrello_id,
-                    prezzo_tot: item.prezzo_tot,
                     email_user: item.cliente_email
                 }
                 },
@@ -93,7 +92,10 @@ const db = require('./queries')
       customer: customer.id,
       line_items,
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/payment/checkout-success?email=${line_items[0].price_data.product_data.metadata.email_user}&total=${line_items[0].price_data.product_data.metadata.prezzo_tot}`,
+      success_url: `${
+      process.env.CLIENT_URL}/payment/checkout-success?email=${line_items[0].price_data.product_data.metadata.email_user}
+      &total=${req.body.cartItems.reduce((accumulator, currentUser) => accumulator + (Number(currentUser.prezzo_tot) || 0), 0).toFixed(2)
+      }`,
       cancel_url: `${process.env.CLIENT_URL}/payment`,
     });
   
