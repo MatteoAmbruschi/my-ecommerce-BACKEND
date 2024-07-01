@@ -16,6 +16,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const helmet = require('helmet');
 const stripe = require('./stripe')
+const email = require('./mailer')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -156,6 +157,7 @@ app.get('/', (req, res) => {
 
 //PAYMENT
 app.use('/stripe', stripe);
+app.use('/email', email)
 
 // Example routes
 app.get('/products/:id', db.getProductsDetailById);
