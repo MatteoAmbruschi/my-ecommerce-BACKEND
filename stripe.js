@@ -34,7 +34,7 @@ const db = require('./queries')
                     email_user: item.cliente_email
                 }
                 },
-                unit_amount: Number(item.prezzo) * 100,
+                unit_amount: Math.round(Number(item.prezzo) * 100),
             },
             quantity: item.quantita,
             }
