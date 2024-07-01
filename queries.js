@@ -700,7 +700,7 @@ const cartActive = (req, res) => {
       INNER JOIN prodotti ON carrello.prodotto_id = prodotti.id
       INNER JOIN dettaglio ON prodotti.dettaglio_id = dettaglio.id
       WHERE carrello.cliente_email = $1 AND carrello.attivo = FALSE
-      ORDER BY ordini.data_ordine DESC;
+      ORDER BY carrello.id DESC;
     `;
   
     pool.query(query, [email], (err, result) => {
@@ -734,7 +734,7 @@ const cartActive = (req, res) => {
         INNER JOIN carrello ON ordini.carrello_id = carrello.id
         INNER JOIN prodotti ON carrello.prodotto_id = prodotti.id
         WHERE carrello.cliente_email = $1
-        ORDER BY ordini.data_ordine DESC;
+        ORDER BY carrello.id DESC;
     `, [email], (err, result) => {
 
         if (err) {
