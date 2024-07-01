@@ -8,7 +8,9 @@ if(process.env.NODE_ENV !== 'production') {
 
   router.post('/mailer', (req, res) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.SMPT_EMAIL,
       pass: process.env.SMPT_PASSWORD,
