@@ -20,7 +20,7 @@ const getAllProducts = (req, res) => {
     
     pool.query('SELECT * FROM prodotti', (err, result) => {
         if(err){
-            throw err
+            res.status(404).json({message: 'Nessun elemento trovato'})
         }
         res.status(200).send(result.rows)
     })

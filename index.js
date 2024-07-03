@@ -172,7 +172,7 @@ app.put('/orders/:id', db.updateOrdersById);
 app.delete('/orders/:id', ensureAuthenticated, db.deleteOrder);
 app.get('/orders/:id/detail', db.getOrdersProdottiById);
 
-app.get('/allUsers', db.getAllUsers);
+/* app.get('/allUsers', db.getAllUsers); */
 app.get('/users/:id', db.getUsersByID);
 app.get('/users', db.getUsers);
 app.put('/users', ensureAuthenticated, db.updateUser);
