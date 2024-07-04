@@ -20,7 +20,7 @@ const getAllProducts = (req, res) => {
     
     pool.query('SELECT * FROM prodotti', (err, result) => {
         if(err){
-            res.status(404).json({message: 'Nessun elemento trovato'})
+            return res.status(404).json({message: 'Nessun elemento trovato'})
         }
         res.status(200).send(result.rows)
     })
@@ -41,13 +41,13 @@ const getProductsDetailById = (req, res) => {
         WHERE prodotti.id = $1;    
         `, [id], (err, result) => {
         if(err) {
-            throw err
+            return res.status(500).send('Internal server error');
         }
 
         if(result.rows.length > 0){
-            res.status(200).send(result.rows)
+            return res.status(200).send(result.rows)
         }else{
-            res.status(404).send(['Nessun elemento trovato'])
+            return res.status(404).send(['Nessun elemento trovato'])
         }
     })
 }
@@ -60,7 +60,7 @@ const createUser = (nome, cognome, email, hashedPassword) => {
             [nome, cognome, email, hashedPassword],
             (error, result) => {
                 if (error) {
-                    reject(error);
+                    return reject(error);
                 } else {
                     resolve(result.rows[0]);
                 }
@@ -153,7 +153,7 @@ const updateUser = async(req, res) => {
 
     pool.query(query, [email], (error, result) => {
         if (error) {
-            throw error;
+            return res.status(404).json({message: error});
         }
         res.status(200).send(`Utente modificato con l'email: ${email}`);
     });
@@ -234,8 +234,7 @@ const deleteOrder = (req, res) => {
         'DELETE FROM ordini WHERE id IN (SELECT ordini.id FROM ordini INNER JOIN carrello ON ordini.carrello_id = carrello.id WHERE ordini.carrello_id = $1 AND cliente_email = $2)', 
         [id, email], (err, result) => {
             if(err){
-                res.status(500).send('Error deleting order');
-                throw err
+                return res.status(500).send('Error deleting order');
             }
             res.status(200).json({message: `Ordine eliminato con l'ID: ${id}`})
         }
@@ -628,11 +627,6 @@ const dashboard = (req, res) => {
 
     if (!req.user || !req.user.email) {
         return res.status(401).json({ error: 'User not authenticated or email not found' });
-    }
-
-    const { email } = req.user
-    if(!email) {
-        res.status(400).json({ message: 'You are not logged in' })
     }
         res.status(200).send(req.user);
   };
